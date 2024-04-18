@@ -1,0 +1,10 @@
+.vs/
+Binaries/
+Saved/
+Intermediate/
+.dll
+.pdb
+.log
+.bin
+.sln
+.vsconfig

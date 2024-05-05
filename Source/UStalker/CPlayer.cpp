@@ -2,6 +2,10 @@
 
 
 #include "CPlayer.h"
+#include "CPlayerWeaponComponent.h"
+
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ACPlayer::ACPlayer()
@@ -9,6 +13,26 @@ ACPlayer::ACPlayer()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Create a first person camera component.
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	check(CameraComponent != nullptr);
+
+	// Attach the camera component to our capsule component.
+	CameraComponent->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
+
+	// Enable the pawn to control camera rotation.
+	CameraComponent->bUsePawnControlRotation = true;
+
+	// Create a first person mesh component for the owning player.
+	ConstructorHelpers::FClassFinder<UCPlayerWeaponComponent> Toz34(TEXT("/Game/Blueprints/BP_Toz34Component"));
+	WeaponComponent = Cast<UCPlayerWeaponComponent>(CreateDefaultSubobject(TEXT("WeaponComponent"), UCPlayerWeaponComponent::StaticClass(), Toz34.Class, true, false));
+	check(WeaponComponent != nullptr);
+
+	// Only the owning player sees this mesh.
+	WeaponComponent->SetOnlyOwnerSee(true);
+
+	// Attach the FPS mesh to the FPS camera.
+	WeaponComponent->SetupAttachment(CameraComponent);
 }
 
 // Called when the game starts or when spawned

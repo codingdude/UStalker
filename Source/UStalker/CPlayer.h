@@ -34,4 +34,11 @@ private:
 	// Handles input for moving left
 	UFUNCTION()
 	void MoveAcross(float Value);
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UCameraComponent> CameraComponent;
+
+	UPROPERTY()
+	TObjectPtr<class UCPlayerWeaponComponent> WeaponComponent;
 };

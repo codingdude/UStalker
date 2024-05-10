@@ -55,7 +55,6 @@ private:
 	UFUNCTION()
 	void ReloadWeapon();
 
-
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UCameraComponent> CameraComponent;

@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "CPlayerWeaponComponent.h"
 #include "CAnimNotify.h"
 
 #include "Animation/AnimSingleNodeInstance.h"
+#include "Components/AudioComponent.h"
 
 UCPlayerWeaponComponent::UCPlayerWeaponComponent()
-	: CurrentState(WS_None)
-	, bTransitionInProgress(false)
+	: Super()
+	, CurrentState(WS_None)
 {
 }
 
@@ -26,6 +26,12 @@ void UCPlayerWeaponComponent::BeginPlay()
 
 	AnimationEndedNotifyEvent.NotifyName = AnimNotifyStr;
 	AnimationEndedNotifyEvent.Notify = AnimNotify;
+
+	AudioComponent = NewObject<UAudioComponent>(UAudioComponent::StaticClass());
+	check(AudioComponent != nullptr);
+
+	AudioComponent->RegisterComponentWithWorld(GetWorld());
+	AudioComponent->SetupAttachment(this);
 
 	SetOnlyOwnerSee(true);
 	SetVisibility(false);
@@ -69,6 +75,7 @@ void UCPlayerWeaponComponent::SwitchToState(EWeaponState NewState)
 	}
 
 	UAnimSequence* AnimSequence = nullptr;
+	USoundBase* Sound = nullptr;
 
 	if (CurrentState == WS_None)
 	{
@@ -76,6 +83,7 @@ void UCPlayerWeaponComponent::SwitchToState(EWeaponState NewState)
 		{
 			SetVisibility(true);
 			AnimSequence = Cast<UAnimSequence>(RaiseAnimation);
+			Sound = RaiseSound;
 		}
 	}
 	else
@@ -83,6 +91,7 @@ void UCPlayerWeaponComponent::SwitchToState(EWeaponState NewState)
 		if (NewState == WS_Lower)
 		{
 			AnimSequence = Cast<UAnimSequence>(LowerAnimation);
+			Sound = LowerSound;
 		}
 
 		if (NewState == WS_Idle)
@@ -98,11 +107,13 @@ void UCPlayerWeaponComponent::SwitchToState(EWeaponState NewState)
 		if (NewState == WS_Fire)
 		{
 			AnimSequence = Cast<UAnimSequence>(FireAnimation);
+			Sound = FireSound;
 		}
 
 		if (NewState == WS_Reload)
 		{
 			AnimSequence = Cast<UAnimSequence>(ReloadAnimation);
+			Sound = ReloadSound;
 		}
 
 		if (NewState == WS_None)
@@ -110,6 +121,12 @@ void UCPlayerWeaponComponent::SwitchToState(EWeaponState NewState)
 			SetVisibility(false);
 			CurrentState = NewState;
 		}
+	}
+
+	if (Sound)
+	{
+		AudioComponent->SetSound(Sound);
+		AudioComponent->Play();
 	}
 
 	if (AnimSequence != nullptr)

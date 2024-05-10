@@ -35,7 +35,7 @@ public:
 	void FireWeapon() { SwitchToState(WS_Fire); }
 	void ReloadWeapon() { SwitchToState(WS_Reload); }
 
-	bool IsWeaponRaised() { return CurrentState != WS_None; }
+	bool IsWeaponRaised() const { return CurrentState != WS_None; }
 
 public:
 	UFUNCTION()
@@ -45,6 +45,8 @@ private:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
+
+	void PlaySound(class USoundBase* Sound);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
@@ -60,10 +62,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	TObjectPtr<class UAnimationAsset> ReloadAnimation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
+	TObjectPtr<class USoundBase> RaiseSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
+	TObjectPtr<class USoundBase> LowerSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
+	TObjectPtr<class USoundBase> FireSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
+	TObjectPtr<class USoundBase> ReloadSound;
+
+	UPROPERTY()
+	TObjectPtr<class UAudioComponent> AudioComponent;
+
 private:
 	FAnimNotifyEvent AnimationEndedNotifyEvent;
 
 	EWeaponState CurrentState;
-
-	bool bTransitionInProgress;
 };

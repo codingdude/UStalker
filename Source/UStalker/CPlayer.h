@@ -35,6 +35,27 @@ private:
 	UFUNCTION()
 	void MoveAcross(float Value);
 
+	// Handles input on take weapon on/off
+	UFUNCTION()
+	void SwitchWeapon();
+
+	// Handles input on aim weapon
+	UFUNCTION()
+	void AimWeapon();
+
+	// Handles input on idle weapon
+	UFUNCTION()
+	void IdleWeapon();
+
+	// Handles input on fire weapon
+	UFUNCTION()
+	void FireWeapon();
+
+	// Handles input on reload weapon
+	UFUNCTION()
+	void ReloadWeapon();
+
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UCameraComponent> CameraComponent;

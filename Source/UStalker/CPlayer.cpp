@@ -22,14 +22,6 @@ ACPlayer::ACPlayer()
 
 	// Enable the pawn to control camera rotation.
 	CameraComponent->bUsePawnControlRotation = true;
-
-	// Create a first person mesh component for the owning player.
-	ConstructorHelpers::FClassFinder<UCPlayerWeaponComponent> Toz34(TEXT("/Game/Blueprints/BP_Toz34Component"));
-	WeaponComponent = Cast<UCPlayerWeaponComponent>(CreateDefaultSubobject(TEXT("WeaponComponent"), UCPlayerWeaponComponent::StaticClass(), Toz34.Class, true, false));
-	check(WeaponComponent != nullptr);
-
-	// Attach the FPS mesh to the FPS camera.
-	WeaponComponent->SetupAttachment(CameraComponent);
 }
 
 // Called when the game starts or when spawned
@@ -42,7 +34,6 @@ void ACPlayer::BeginPlay()
 void ACPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -55,11 +46,25 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACPlayer::MoveAcross);
 	PlayerInputComponent->BindAxis("Turn", this, &ACPlayer::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("LookUp", this, &ACPlayer::AddControllerPitchInput);
-	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &ACPlayer::SwitchWeapon);
-	PlayerInputComponent->BindAction("AimWeapon", IE_Pressed, this, &ACPlayer::AimWeapon);
-	PlayerInputComponent->BindAction("AimWeapon", IE_Released, this, &ACPlayer::IdleWeapon);
-	PlayerInputComponent->BindAction("FireWeapon", IE_Pressed, this, &ACPlayer::FireWeapon);
-	PlayerInputComponent->BindAction("ReloadWeapon", IE_Pressed, this, &ACPlayer::ReloadWeapon);
+}
+
+void ACPlayer::SetupAttachableItemComponent(class USkeletalMeshComponent* InPlayerComponent)
+{
+	if (auto WeaponComponent = Cast<UCPlayerWeaponComponent>(InPlayerComponent))
+	{
+		if (WeaponComponent->IsRegistered())
+		{
+			WeaponComponent->UnregisterComponent();
+		}
+
+		// Attach the FPS mesh to the FPS camera.
+		FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, true);
+		WeaponComponent->AttachToComponent(CameraComponent, AttachmentRules);
+
+		WeaponComponent->SetupInputComponent(InputComponent);
+		WeaponComponent->RegisterComponent();
+		WeaponComponent->RaiseWeapon();
+	}
 }
 
 void ACPlayer::MoveAlong(float Value)
@@ -74,51 +79,4 @@ void ACPlayer::MoveAcross(float Value)
 	// Find out which way is "across" and record that the player wants to move that way.
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
-}
-
-void ACPlayer::SwitchWeapon()
-{
-	if (WeaponComponent != nullptr)
-	{
-		if (WeaponComponent->IsWeaponRaised())
-		{
-			WeaponComponent->LowerWeapon();
-		}
-		else
-		{
-			WeaponComponent->RaiseWeapon();
-		}
-	}
-}
-
-void ACPlayer::AimWeapon()
-{
-	if (WeaponComponent != nullptr)
-	{
-		WeaponComponent->AimWeapon();
-	}
-}
-
-void ACPlayer::IdleWeapon()
-{
-	if (WeaponComponent != nullptr)
-	{
-		WeaponComponent->IdleWeapon();
-	}
-}
-
-void ACPlayer::FireWeapon()
-{
-	if (WeaponComponent != nullptr)
-	{
-		WeaponComponent->FireWeapon();
-	}
-}
-
-void ACPlayer::ReloadWeapon()
-{
-	if (WeaponComponent != nullptr)
-	{
-		WeaponComponent->ReloadWeapon();
-	}
 }

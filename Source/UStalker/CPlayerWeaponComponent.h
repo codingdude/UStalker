@@ -37,6 +37,8 @@ public:
 
 	bool IsWeaponRaised() const { return CurrentState != WS_None; }
 
+	void SetupInputComponent(UInputComponent* PlayerInputComponent);
+
 public:
 	UFUNCTION()
 	void OnAnimationEndedNotify(const FString& Name, UAnimSequenceBase* Animation);
@@ -46,7 +48,7 @@ private:
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType,
 		FActorComponentTickFunction* ThisTickFunction) override;
 
-	void PlaySound(class USoundBase* Sound);
+	void SwitchWeapon();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)

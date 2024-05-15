@@ -12,6 +12,27 @@ UCPlayerWeaponComponent::UCPlayerWeaponComponent()
 {
 }
 
+void UCPlayerWeaponComponent::SwitchWeapon()
+{
+	if (CurrentState == WS_None)
+	{
+		RaiseWeapon();
+	}
+	else
+	{
+		LowerWeapon();
+	}
+}
+
+void UCPlayerWeaponComponent::SetupInputComponent(UInputComponent* PlayerInputComponent)
+{
+	PlayerInputComponent->BindAction(TEXT("SwitchWeapon"), IE_Pressed, this, &UCPlayerWeaponComponent::SwitchWeapon);
+	PlayerInputComponent->BindAction(TEXT("FireWeapon"), IE_Pressed, this, &UCPlayerWeaponComponent::FireWeapon);
+	PlayerInputComponent->BindAction(TEXT("AimWeapon"), IE_Pressed, this, &UCPlayerWeaponComponent::AimWeapon);
+	PlayerInputComponent->BindAction(TEXT("AimWeapon"), IE_Released, this, &UCPlayerWeaponComponent::IdleWeapon);
+	PlayerInputComponent->BindAction(TEXT("ReloadWeapon"), IE_Pressed, this, &UCPlayerWeaponComponent::ReloadWeapon);
+}
+
 void UCPlayerWeaponComponent::BeginPlay()
 {
 	const FName AnimNotifyStr = TEXT("AnimNotify_PlayerWeaponComponent");
@@ -30,8 +51,8 @@ void UCPlayerWeaponComponent::BeginPlay()
 	AudioComponent = NewObject<UAudioComponent>(UAudioComponent::StaticClass());
 	check(AudioComponent != nullptr);
 
-	AudioComponent->RegisterComponentWithWorld(GetWorld());
 	AudioComponent->SetupAttachment(this);
+	AudioComponent->RegisterComponentWithWorld(GetWorld());
 
 	SetOnlyOwnerSee(true);
 	SetVisibility(false);
